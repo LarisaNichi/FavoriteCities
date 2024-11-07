@@ -1,3 +1,5 @@
+/*
+
 .page {
   --gray-rgb: 0, 0, 0;
   --gray-alpha-200: rgba(var(--gray-rgb), 0.08);
@@ -108,7 +110,10 @@ a.secondary {
   flex-shrink: 0;
 }
 
+*/
+
 /* Enable hover only on non-touch devices */
+/*
 @media (hover: hover) and (pointer: fine) {
   a.primary:hover {
     background: var(--button-primary-hover);
@@ -166,3 +171,4 @@ a.secondary {
     filter: invert();
   }
 }
+*/
