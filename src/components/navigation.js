@@ -11,8 +11,14 @@ import Link from 'next/link';
 
 export default function Navigation() {
   return (
-    <Center bg="blue.200">
-      <Flex as="nav" justify="space-between" px="1.5rem" py="0.5rem" w="75%">
+    <Center bg="blue.200/75" h="10vh">
+      <Flex
+        as="nav"
+        justify="space-between"
+        px="1.5rem"
+        py="0.5rem"
+        w={{ xl: '75%', lg: '75%', md: '100%', sm: '100%' }}
+      >
         <Image
           src="/img/logo-transparent.png"
           alt="logo"
@@ -28,6 +34,8 @@ export default function Navigation() {
                 px="0.4rem"
                 variant="ghost"
                 colorPalette="blue"
+                size="lg"
+
                 // borderBottomColor="blue.600"
                 // borderWidth="2px"
               >
@@ -35,24 +43,42 @@ export default function Navigation() {
               </Button>
             </Link>
             <Link href="/search">
-              <Button as="li" px="0.5rem" variant="ghost" colorPalette="blue">
+              <Button
+                as="li"
+                px="0.5rem"
+                variant="ghost"
+                colorPalette="blue"
+                size="lg"
+              >
                 Search
               </Button>
             </Link>
 
             <Link href="/city">
-              <Button as="li" px="0.5rem" variant="ghost" colorPalette="blue">
+              <Button
+                as="li"
+                px="0.5rem"
+                variant="ghost"
+                colorPalette="blue"
+                size="lg"
+              >
                 City
               </Button>
             </Link>
 
             <Link href="/favorites">
-              <Button as="li" px="0.5rem" variant="ghost" colorPalette="blue">
+              <Button
+                as="li"
+                px="0.5rem"
+                variant="ghost"
+                colorPalette="blue"
+                size="lg"
+              >
                 Favorites
               </Button>
             </Link>
           </HStack>
-          <Button colorPalette="blue" px="1rem">
+          <Button colorPalette="blue" px="1rem" size="lg">
             Sign In
           </Button>
         </Group>
