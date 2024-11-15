@@ -54,18 +54,6 @@ export default function Navigation() {
               </Button>
             </Link>
 
-            <Link href="/city">
-              <Button
-                as="li"
-                px="0.5rem"
-                variant="ghost"
-                colorPalette="blue"
-                size="lg"
-              >
-                City
-              </Button>
-            </Link>
-
             <Link href="/favorites">
               <Button
                 as="li"
