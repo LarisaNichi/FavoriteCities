@@ -39,7 +39,6 @@ export default function Search() {
       const data = await response.json();
       const cities = data.results;
       setCitiesData(cities);
-      // console.log('cities inside the function:', cities);
     } catch (err) {
       console.log(err);
       setError(err.message);
@@ -47,10 +46,6 @@ export default function Search() {
       setIsLoading(false);
     }
   }
-  // const [{ name, country, latitude, longitude, population, country_code }] =
-  //   cities;
-
-  // console.log('cities outside the function', citiesData);
 
   function handleSearchSubmit(e) {
     e.preventDefault();
