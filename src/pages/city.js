@@ -10,10 +10,16 @@ import {
   Flex,
   FormatNumber,
   Image,
+  VStack,
+  HStack,
+  Button,
 } from '@chakra-ui/react';
 import { FaPeopleGroup } from 'react-icons/fa6';
 import { TbWorldLatitude } from 'react-icons/tb';
 import { TbWorldLongitude } from 'react-icons/tb';
+import { TiWeatherWindy } from 'react-icons/ti';
+import { FaDroplet } from 'react-icons/fa6';
+import { LiaStarSolid } from 'react-icons/lia';
 
 export default function City() {
   const [localSelectedCity, setLocalSelectedCity] = useState({});
@@ -47,9 +53,16 @@ export default function City() {
     }
   }
 
-  if (Object.keys(localSelectedCity).length === 0) return null;
+  if (
+    Object.keys(localSelectedCity).length === 0 ||
+    Object.keys(weatherData).length === 0
+  )
+    return null;
   const { name, country, latitude, longitude, population, country_code, id } =
     localSelectedCity;
+
+  const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  console.log(weatherData);
 
   return (
     <>
@@ -58,19 +71,15 @@ export default function City() {
       <Center my={10}>
         <Grid
           h="70vh"
-          w="80%"
+          w={{
+            sm: '95%',
+            xl: '70%',
+          }}
           templateColumns="repeat(16, 1fr)"
-          templateRows="repeat(9, 1fr)"
-          // gap={4}
-          borderWidth="5px"
-          borderColor="yellow.400"
-          justifyItems="stretch"
-          alignItems="stretch"
-          justifyContent="center"
-          alignContent="center"
+          templateRows="repeat(10, 1fr)"
         >
-          <GridItem gridRow="1/3" colSpan={16}>
-            <Box borderWidth="5px" borderColor="red.600" h="100%">
+          <GridItem gridRow="1/3" gridColumn="1/-1">
+            <Box h="100%">
               <Heading
                 as="h1"
                 size={{
@@ -118,18 +127,33 @@ export default function City() {
             </Box>
           </GridItem>
 
+          <GridItem
+            gridRow="1/3"
+            gridColumn="-5/-2"
+            alignSelf="center"
+            justifySelf="center"
+          >
+            <Button
+              colorPalette="blue"
+              variant="surface"
+              px={4}
+              fontSize="md"
+              fontWeight="semibold"
+            >
+              <LiaStarSolid /> Add to favorites
+            </Button>
+          </GridItem>
           <GridItem gridRow="3/7" gridColumn="1/-1">
-            <Box borderWidth="5px" borderColor="red.600" h="100%" bg="blue.300">
+            <Box h="100%" bg="blue.300" py={1}>
               <Heading
                 as="h2"
                 size={{
                   sm: 'xl',
                   xl: '2xl',
                 }}
-                py={1}
+                py={2}
+                pl={10}
                 textAlign="left"
-                fontWeight="bold"
-                letterSpacing="wide"
                 lineHeight="1.3"
               >
                 Weather info
@@ -137,31 +161,80 @@ export default function City() {
             </Box>
           </GridItem>
 
-          <GridItem gridRow="3/5" gridColumn="14/16">
-            <Box borderWidth="5px" borderColor="red.600" h="100%">
-              <Center gap={2}>
-                <Text textStyle="lg">
-                  {/* {weatherData.current.temperature_2m} */}
+          <GridItem gridRow="3/5" gridColumn="-5/-2">
+            <Center gap={2} py={2}>
+              <VStack>
+                <Text textStyle="4xl" fontWeight="bold" color="blue.600">
+                  {Math.round(weatherData.current.temperature_2m)}&nbsp;
+                  {weatherData.current_units.temperature_2m}
                 </Text>
-              </Center>
-            </Box>
+                <Text
+                  textStyle="lg"
+                  fontWeight="semibold"
+                  textAlign="center"
+                  color="blue.800"
+                >
+                  {weatherData.current.wind_speed_10m}&nbsp;
+                  {weatherData.current_units.wind_speed_10m}&nbsp;|&nbsp;
+                  {new Date(weatherData.current.time).getHours()}:
+                  {new Date(weatherData.current.time).getMinutes()}
+                </Text>
+              </VStack>
+            </Center>
           </GridItem>
 
-          <GridItem gridRow="4/9" gridColumn={`${2}/${4}`}>
-            <Box borderWidth="5px" borderColor="red.600" h="100%">
-              Zi 1
-            </Box>
-          </GridItem>
-          <GridItem gridRow="4/9" gridColumn={`${4}/${6}`}>
-            <Box borderWidth="5px" borderColor="red.600" h="100%">
-              Zi 2
-            </Box>
-          </GridItem>
-          <GridItem gridRow="4/9" gridColumn={`${6}/${8}`}>
-            <Box borderWidth="5px" borderColor="red.600" h="100%">
-              Zi 3
-            </Box>
-          </GridItem>
+          {weatherData.daily.time.map((day, index) => (
+            <GridItem
+              gridRow={index === 0 ? '4/9' : '5/10'}
+              gridColumn={`${2 * index + 2}/${2 * index + 4}`}
+              textAlign="center"
+              key={day}
+            >
+              <VStack
+                gap={2}
+                h="100%"
+                rounded="xl"
+                bg="blue.100"
+                py={6}
+                borderWidth="1px"
+                borderColor="blue.300"
+              >
+                <Text textStyle="xl" fontWeight="bold">
+                  {daysOfWeek[new Date(day).getDay()]}
+                </Text>
+                <Text textStyle="lg">
+                  {index === 0
+                    ? 'Today'
+                    : index == 1
+                    ? 'Tomorrow'
+                    : `${new Date(day).getDate()}-${new Date(day).getMonth()}`}
+                </Text>
+                <Text textStyle="md" bg="yellow.400" p={1} rounded="sm">
+                  {Math.round(weatherData.daily.temperature_2m_max[index])}
+                  &nbsp;{weatherData.daily_units.temperature_2m_max}
+                </Text>
+                <Text textStyle="md" bg="green.300" p={1.5} rounded="sm">
+                  {Math.round(weatherData.daily.temperature_2m_min[index])}
+                  &nbsp;{weatherData.daily_units.temperature_2m_min}
+                </Text>
+
+                <HStack>
+                  <TiWeatherWindy />
+                  <Text textStyle="md">
+                    {weatherData.daily.wind_speed_10m_max[index]}&nbsp;
+                    {weatherData.daily_units.wind_speed_10m_max}
+                  </Text>
+                </HStack>
+
+                <HStack>
+                  <FaDroplet />
+                  <Text textStyle="md">
+                    {weatherData.daily.precipitation_probability_max[index]} %
+                  </Text>
+                </HStack>
+              </VStack>
+            </GridItem>
+          ))}
         </Grid>
       </Center>
     </>
