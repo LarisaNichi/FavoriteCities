@@ -1,5 +1,7 @@
-import Navigation from '@/components/navigation';
 import SearchTable from '@/components/searchTable';
+import { useState } from 'react';
+import { Field } from '@/components/ui/field';
+import { LuSearch } from 'react-icons/lu';
 import {
   Heading,
   Fieldset,
@@ -11,9 +13,6 @@ import {
   Text,
   VStack,
 } from '@chakra-ui/react';
-import { Field } from '@/components/ui/field';
-import { LuSearch } from 'react-icons/lu';
-import { useState, useEffect } from 'react';
 
 export default function Search() {
   const [cityInput, setCityInput] = useState('');
@@ -57,7 +56,6 @@ export default function Search() {
 
   return (
     <>
-      <Navigation />
       <Box>
         <Heading
           as="h1"

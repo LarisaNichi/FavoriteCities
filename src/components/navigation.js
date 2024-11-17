@@ -1,23 +1,29 @@
-import {
-  Flex,
-  Image,
-  Box,
-  HStack,
-  Button,
-  Group,
-  Center,
-} from '@chakra-ui/react';
 import Link from 'next/link';
+import { Flex, Image, HStack, Button, Group, Center } from '@chakra-ui/react';
 
 export default function Navigation() {
+  const tabs = [
+    { label: 'Home', path: '/' },
+    { label: 'Search', path: '/search' },
+    { label: 'Favorites', path: '/favorites' },
+  ];
+
+  const styleButtonNav = {
+    px: {
+      base: '2',
+      sm: '3',
+    },
+    colorPalette: 'blue',
+    size: 'md',
+    fontSize: 'md',
+  };
+
   return (
-    <Center bg="blue.200/75" h="10vh">
+    <Center bg="blue.200/75" h="7vh" px="4">
       <Flex
         as="nav"
         justify="space-between"
-        px="1.5rem"
-        py="0.5rem"
-        w={{ xl: '75%', lg: '75%', md: '100%', sm: '100%' }}
+        w={{ base: '100%', md: '75%', '2xl': '50%' }}
       >
         <Image
           src="/img/logo-transparent.png"
@@ -26,49 +32,18 @@ export default function Navigation() {
           width="60px"
           fit="contain"
         />
-        <Group gap="15px">
-          <HStack as="ul" gap="10px">
-            <Link href="/">
-              <Button
-                as="li"
-                px="0.4rem"
-                variant="ghost"
-                colorPalette="blue"
-                size="lg"
-
-                // borderBottomColor="blue.600"
-                // borderWidth="2px"
-              >
-                Home
-              </Button>
-            </Link>
-            <Link href="/search">
-              <Button
-                as="li"
-                px="0.5rem"
-                variant="ghost"
-                colorPalette="blue"
-                size="lg"
-              >
-                Search
-              </Button>
-            </Link>
-
-            <Link href="/favorites">
-              <Button
-                as="li"
-                px="0.5rem"
-                variant="ghost"
-                colorPalette="blue"
-                size="lg"
-              >
-                Favorites
-              </Button>
-            </Link>
+        <Group gap="3">
+          <HStack as="ul" gap="2">
+            {tabs.map(({ label, path }) => (
+              <Link href={path} key={path}>
+                <Button as="li" css={styleButtonNav} variant="ghost">
+                  {label}
+                </Button>
+              </Link>
+            ))}
           </HStack>
-          <Button colorPalette="blue" px="1rem" size="lg">
-            Sign In
-          </Button>
+
+          <Button css={styleButtonNav}>Sign In</Button>
         </Group>
       </Flex>
     </Center>

@@ -1,7 +1,13 @@
 import Head from 'next/head';
-import Navigation from '@/components/navigation';
-import { Heading, Box, AbsoluteCenter, Button, VStack } from '@chakra-ui/react';
 import Link from 'next/link';
+import {
+  Heading,
+  Box,
+  AbsoluteCenter,
+  Button,
+  VStack,
+  Center,
+} from '@chakra-ui/react';
 
 export default function Home() {
   return (
@@ -12,13 +18,12 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/img/favicon.ico" />
       </Head>
-      <Navigation />
       <Box
         bgImage="url(/img/background.jpg)"
         bgPosition="center"
         bgRepeat="no-repeat"
         bgSize="cover"
-        h="90vh"
+        h="100vh"
         w="100%"
         position="relative"
       >
@@ -28,15 +33,16 @@ export default function Home() {
           color="blue.700"
           axis="both"
           h="40%"
-          w="40%"
+          w={{ base: '80%', sm: '70%', md: '50%', xl: '40%' }}
           borderRadius="lg"
-          mt="-10"
+          mt="-20"
         >
           <VStack gap="9">
             <Heading
               as="h1"
               size={{
-                sm: '2xl',
+                base: '2xl',
+                sm: '3xl',
                 xl: '4xl',
               }}
               textAlign="center"
@@ -47,7 +53,7 @@ export default function Home() {
               Discover the BEST destinations in the world
             </Heading>
             <Link href="/search">
-              <Button colorPalette="gray" px="1rem" size="xl" variant="solid">
+              <Button colorPalette="gray" px="4" size="xl" variant="solid">
                 Start Now
               </Button>
             </Link>
