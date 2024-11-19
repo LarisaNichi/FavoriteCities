@@ -19,7 +19,6 @@ export default function Search() {
   const [citiesData, setCitiesData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [isSubmitted, setIsSubmitted] = useState(false);
 
   function handleSearchInput(e) {
     setCityInput(e.target.value);
@@ -27,6 +26,7 @@ export default function Search() {
 
   async function getCityData() {
     try {
+      setIsLoading(true);
       const response = await fetch(
         `https://geocoding-api.open-meteo.com/v1/search?name=${cityInput}&count=10&language=en&format=json`
       );
@@ -46,12 +46,10 @@ export default function Search() {
     }
   }
 
-  function handleSearchSubmit(e) {
+  async function handleSearchSubmit(e) {
     e.preventDefault();
-    setIsLoading(true);
-    getCityData();
+    await getCityData();
     setCityInput('');
-    setIsSubmitted(true);
   }
 
   return (
@@ -103,7 +101,7 @@ export default function Search() {
         </Center>
       </Box>
 
-      {isSubmitted && !citiesData && (
+      {!isLoading && !citiesData && (
         <Center my="10" fontSize="lg" fontWeight="600" color="orange.700">
           No city was found. Try another search!
         </Center>
@@ -117,7 +115,7 @@ export default function Search() {
         </VStack>
       )}
 
-      {isSubmitted && citiesData && citiesData.length > 1 && (
+      {!isLoading && citiesData && citiesData.length > 1 && (
         <SearchTable citiesData={citiesData}></SearchTable>
       )}
     </>
