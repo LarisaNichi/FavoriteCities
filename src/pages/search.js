@@ -1,5 +1,7 @@
-import Navigation from '@/components/navigation';
 import SearchTable from '@/components/searchTable';
+import { useState } from 'react';
+import { Field } from '@/components/ui/field';
+import { LuSearch } from 'react-icons/lu';
 import {
   Heading,
   Fieldset,
@@ -11,16 +13,12 @@ import {
   Text,
   VStack,
 } from '@chakra-ui/react';
-import { Field } from '@/components/ui/field';
-import { LuSearch } from 'react-icons/lu';
-import { useState, useEffect } from 'react';
 
 export default function Search() {
   const [cityInput, setCityInput] = useState('');
   const [citiesData, setCitiesData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [isSubmitted, setIsSubmitted] = useState(false);
 
   function handleSearchInput(e) {
     setCityInput(e.target.value);
@@ -28,6 +26,7 @@ export default function Search() {
 
   async function getCityData() {
     try {
+      setIsLoading(true);
       const response = await fetch(
         `https://geocoding-api.open-meteo.com/v1/search?name=${cityInput}&count=10&language=en&format=json`
       );
@@ -39,7 +38,6 @@ export default function Search() {
       const data = await response.json();
       const cities = data.results;
       setCitiesData(cities);
-      // console.log('cities inside the function:', cities);
     } catch (err) {
       console.log(err);
       setError(err.message);
@@ -47,22 +45,15 @@ export default function Search() {
       setIsLoading(false);
     }
   }
-  // const [{ name, country, latitude, longitude, population, country_code }] =
-  //   cities;
 
-  // console.log('cities outside the function', citiesData);
-
-  function handleSearchSubmit(e) {
+  async function handleSearchSubmit(e) {
     e.preventDefault();
-    setIsLoading(true);
-    getCityData();
+    await getCityData();
     setCityInput('');
-    setIsSubmitted(true);
   }
 
   return (
     <>
-      <Navigation />
       <Box>
         <Heading
           as="h1"
@@ -110,7 +101,7 @@ export default function Search() {
         </Center>
       </Box>
 
-      {isSubmitted && !citiesData && (
+      {!isLoading && !citiesData && (
         <Center my="10" fontSize="lg" fontWeight="600" color="orange.700">
           No city was found. Try another search!
         </Center>
@@ -124,7 +115,7 @@ export default function Search() {
         </VStack>
       )}
 
-      {isSubmitted && citiesData && citiesData.length > 1 && (
+      {!isLoading && citiesData && citiesData.length > 1 && (
         <SearchTable citiesData={citiesData}></SearchTable>
       )}
     </>
