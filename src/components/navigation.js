@@ -1,7 +1,13 @@
 import Link from 'next/link';
+import { useSession, signIn, signOut } from 'next-auth/react';
 import { Flex, Image, HStack, Button, Group, Center } from '@chakra-ui/react';
+import { Avatar } from '@/components/ui/avatar';
+import { Tooltip } from '@/components/ui/tooltip';
+import { useId } from 'react';
 
 export default function Navigation() {
+  const { data: session } = useSession();
+  const id = useId();
   const tabs = [
     { label: 'Home', path: '/' },
     { label: 'Search', path: '/search' },
@@ -19,7 +25,7 @@ export default function Navigation() {
   };
 
   return (
-    <Center bg="blue.200/75" h="7vh" px="4">
+    <Center bg="blue.200/75" h="7vh" px="4" w="100%" zIndex="overlay">
       <Flex
         as="nav"
         justify="space-between"
@@ -41,9 +47,29 @@ export default function Navigation() {
                 </Button>
               </Link>
             ))}
-          </HStack>
 
-          <Button css={styleButtonNav}>Sign In</Button>
+            {!session && (
+              <Button css={styleButtonNav} onClick={() => signIn()}>
+                Sign In
+              </Button>
+            )}
+            {session && (
+              <HStack>
+                <Button css={styleButtonNav} onClick={() => signOut()}>
+                  Sign Out
+                </Button>
+
+                <Tooltip
+                  ids={{ trigger: id }}
+                  content={session.user.email}
+                  contentProps={{ css: { '--tooltip-bg': 'blue' } }}
+                  positioning={{ placement: 'right-left' }}
+                >
+                  <Avatar ids={{ root: id }} colorPalette="blue" />
+                </Tooltip>
+              </HStack>
+            )}
+          </HStack>
         </Group>
       </Flex>
     </Center>

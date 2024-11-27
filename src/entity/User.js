@@ -8,11 +8,11 @@ export const User = new EntitySchema({
       primary: true,
       generated: true,
     },
-    name: {
+    email: {
       type: 'varchar',
     },
-    age: {
-      type: 'int',
+    password: {
+      type: 'varchar',
     },
   },
 });
