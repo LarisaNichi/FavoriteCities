@@ -59,18 +59,10 @@ export default function SearchTable({ citiesData }) {
                   <Table.Cell>
                     <IconButton
                       onClick={() => {
-                        localStorage.setItem(
-                          'selectedCity',
-                          JSON.stringify({
-                            name,
-                            country,
-                            latitude,
-                            longitude,
-                            population,
-                            country_code,
-                          })
-                        );
-                        router.push('/city');
+                        router.push({
+                          pathname: `/city/${name}`,
+                          query: { country, latitude, longitude, id },
+                        });
                       }}
                       type="button"
                       aria-label="select"

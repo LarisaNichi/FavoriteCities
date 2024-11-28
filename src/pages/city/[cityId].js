@@ -3,19 +3,34 @@ import WeatherCards from '@/components/weatherCards';
 import WeatherHeader from '@/components/weatherHeader';
 import { useState, useEffect } from 'react';
 import { Grid, GridItem, Box, Center } from '@chakra-ui/react';
+import { useRouter } from 'next/router';
 
 export default function City() {
-  const [localSelectedCity, setLocalSelectedCity] = useState({});
+  const [selectedCity, setSelectedCity] = useState({});
   const [weatherData, setWeatherData] = useState({});
+  const router = useRouter();
+  const { id, latitude, longitude } = router.query;
+  // console.log({ router });
 
   useEffect(() => {
-    const selectedCity = JSON.parse(localStorage.getItem('selectedCity')) ?? '';
-    if (selectedCity) {
-      setLocalSelectedCity(selectedCity);
-      const { latitude, longitude } = selectedCity;
-      getWeatherData(latitude, longitude);
-    }
+    getCityData();
+    getWeatherData(latitude, longitude);
   }, []);
+
+  async function getCityData() {
+    try {
+      const res = await fetch(
+        `https://geocoding-api.open-meteo.com/v1/get?id=${id}`
+      );
+      if (!res.ok) {
+        throw new Error('Network response was not ok');
+      }
+      const city = await res.json();
+      setSelectedCity(city);
+    } catch (err) {
+      console.log(err);
+    }
+  }
 
   async function getWeatherData(latitude, longitude) {
     try {
@@ -34,7 +49,11 @@ export default function City() {
     }
   }
 
-  if (Object.keys(weatherData).length === 0) return null;
+  if (
+    Object.keys(weatherData).length === 0 ||
+    Object.keys(selectedCity).length === 0
+  )
+    return null;
 
   return (
     <>
@@ -52,7 +71,7 @@ export default function City() {
           alignContent="center"
         >
           <GridItem gridRow="1/2" gridColumn="1/-1">
-            <CityHeader localSelectedCity={localSelectedCity} />
+            <CityHeader selectedCity={selectedCity} />
           </GridItem>
 
           <GridItem

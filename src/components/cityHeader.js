@@ -11,9 +11,9 @@ import {
   FormatNumber,
 } from '@chakra-ui/react';
 
-export default function CityHeader({ localSelectedCity }) {
+export default function CityHeader({ selectedCity }) {
   const { name, country, latitude, longitude, population, country_code } =
-    localSelectedCity;
+    selectedCity;
 
   return (
     <Box as="header" h="100%">
