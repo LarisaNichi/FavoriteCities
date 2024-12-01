@@ -25,13 +25,35 @@ export default function Favorites() {
       const userData = users.filter((user) => user.email === currentUser);
       if (userData.length !== 0) {
         const cities = userData[0].cities;
-        console.log('cities:', cities);
+        // console.log('cities:', cities);
         setFavoriteCities(cities);
       }
     })();
   }, [currentUser]);
 
-  async function DeleteCityFromFAvorites() {}
+  async function deleteCityFromFavorites(id, email) {
+    try {
+      const response = await fetch('/api/cities', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ id, email }),
+      });
+      const result = await response.json();
+      console.log(result);
+      if (response.ok) {
+        const newCitiesList = favoriteCities.filter((city) => city.id !== id);
+        setFavoriteCities(newCitiesList);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  if (favoriteCities.length === 0) {
+    return null;
+  }
 
   return (
     <>
@@ -49,9 +71,7 @@ export default function Favorites() {
           lineHeight="1.3"
           my="10"
         >
-          {favoriteCities.length === 0
-            ? 'Please Sign In to see your favorite cities'
-            : 'Your favorite cities'}
+          Your favorite cities
         </Heading>
       </Box>
       <Grid
@@ -100,7 +120,13 @@ export default function Favorites() {
                 >
                   View
                 </Button>
-                <Button variant="subtle" colorPalette="blue" size="sm" px="2">
+                <Button
+                  variant="subtle"
+                  colorPalette="blue"
+                  size="sm"
+                  px="2"
+                  onClick={() => deleteCityFromFavorites(id, currentUser)}
+                >
                   Delete
                 </Button>
               </Group>

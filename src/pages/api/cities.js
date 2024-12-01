@@ -21,9 +21,6 @@ export default async function handler(req, res) {
     });
     //findOne returns an Object, find returns and Array with objects
     const cityExists = await cityRepo.findOneBy({ id });
-
-    console.log('current user:', currentUser);
-
     cityIsAlreadySavedByCurrentUser = currentUser.cities.some(
       (city) => city.id === id
     );
@@ -34,14 +31,6 @@ export default async function handler(req, res) {
       currentUser.cities.push(citySaved);
       await userRepo.save(currentUser);
       // citySaved.users = [currentUser];
-
-      // const users = await AppDataSource.manager.find('User', {
-      //   relations: ['cities'],
-      // });
-      // console.log('Users with their cities:', users);
-
-      // const cities = await AppDataSource.manager.find('City', { relations: ['users'] });
-      // console.log('Cities with their users:', cities);
 
       res.status(200).json(true);
       console.log('City created');
@@ -66,5 +55,30 @@ export default async function handler(req, res) {
       relations: ['cities'],
     });
     res.status(200).json(users);
+  }
+
+  if (req.method === 'DELETE') {
+    const { id: citiesId, email } = req.body;
+
+    if (!citiesId || !email) {
+      res.status(400).json({ message: 'City Id and Email are required  ' });
+    }
+
+    const user = await userRepo.findOne({
+      where: { email },
+      relations: ['cities'],
+    });
+    const city = await cityRepo.findOne({
+      where: { id: citiesId },
+    });
+
+    if (!user || !city) {
+      return res.status(404).json({ message: 'City Id and Email not found' });
+    } else {
+      user.cities = user.cities.filter((city) => city.id !== citiesId);
+
+      await userRepo.save(user);
+      res.status(200).json(false);
+    }
   }
 }

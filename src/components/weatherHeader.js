@@ -1,14 +1,32 @@
 import TextWeatherContent from './textWeatherContent';
 import { useSession, signIn } from 'next-auth/react';
+import { useState } from 'react';
 import { HStack, VStack, Button, Center, Text } from '@chakra-ui/react';
 import { LiaStarSolid } from 'react-icons/lia';
 
 export default function WeatherHeader({
   weatherData,
   addToFavorites,
+  deleteCityFromFavorites,
   cityIsSavedToFavorites,
 }) {
+  const [isToggled, setIsToggled] = useState(false);
   const { data: session } = useSession();
+
+  function handleClick() {
+    if (!session) {
+      signIn();
+    }
+    if (session && !cityIsSavedToFavorites) {
+      addToFavorites();
+      setIsToggled(true);
+    }
+    if (session && cityIsSavedToFavorites) {
+      deleteCityFromFavorites();
+      setIsToggled(false);
+    }
+  }
+
   return (
     <HStack justifyContent="space-between" pt="4" pb="2">
       <Button
@@ -17,11 +35,10 @@ export default function WeatherHeader({
         px="4"
         fontSize="md"
         fontWeight="semibold"
-        onClick={() => (session ? addToFavorites() : signIn())}
+        onClick={handleClick}
       >
-        {/* <LiaStarSolid /> Add to favorites */}
         <LiaStarSolid />
-        {cityIsSavedToFavorites ? 'Delete from favorites' : 'Add to favorites'}
+        {isToggled ? 'Delete from favorites' : 'Add to favorites'}
       </Button>
 
       <Center gap="2">

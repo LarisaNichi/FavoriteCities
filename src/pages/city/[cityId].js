@@ -73,7 +73,24 @@ export default function ShowCity() {
       });
       const result = await response.json();
       setCityIsSavedToFavorites(result);
-      console.log(result);
+      // console.log(result);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  async function deleteCityFromFavorites() {
+    try {
+      const response = await fetch('/api/cities', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ id, email: session.user.email }),
+      });
+      const result = await response.json();
+      setCityIsSavedToFavorites(result);
+      // console.log(result);
     } catch (error) {
       console.error(error);
     }
@@ -118,6 +135,7 @@ export default function ShowCity() {
             <WeatherHeader
               weatherData={weatherData}
               addToFavorites={addToFavorites}
+              deleteCityFromFavorites={deleteCityFromFavorites}
               cityIsSavedToFavorites={cityIsSavedToFavorites}
             />
           </GridItem>
