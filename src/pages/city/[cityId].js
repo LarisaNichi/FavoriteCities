@@ -2,20 +2,24 @@ import CityHeader from '@/components/cityHeader';
 import WeatherCards from '@/components/weatherCards';
 import WeatherHeader from '@/components/weatherHeader';
 import { useState, useEffect } from 'react';
-import { Grid, GridItem, Box, Center } from '@chakra-ui/react';
+import { useSession } from 'next-auth/react';
+import { Grid, GridItem, Box, Center, Button } from '@chakra-ui/react';
 import { useRouter } from 'next/router';
 
-export default function City() {
+export default function ShowCity() {
   const [selectedCity, setSelectedCity] = useState({});
   const [weatherData, setWeatherData] = useState({});
+  const [cityIsSavedToFavorites, setCityIsSavedToFavorites] = useState();
   const router = useRouter();
-  const { id, latitude, longitude } = router.query;
-  // console.log({ router });
+  const { cityId, country, id, latitude, longitude } = router.query;
+  const { data: session } = useSession();
 
   useEffect(() => {
-    getCityData();
-    getWeatherData(latitude, longitude);
-  }, []);
+    if (router.isReady) {
+      getCityData();
+      getWeatherData(latitude, longitude);
+    }
+  }, [router.isReady, latitude, longitude]);
 
   async function getCityData() {
     try {
@@ -46,6 +50,32 @@ export default function City() {
       setWeatherData(weatherData);
     } catch (err) {
       console.log(err);
+    }
+  }
+
+  async function addToFavorites() {
+    try {
+      const response = await fetch('/api/cities', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          cityToSave: {
+            id,
+            name: decodeURI(cityId),
+            country,
+            latitude,
+            longitude,
+          },
+          email: session.user.email,
+        }),
+      });
+      const result = await response.json();
+      setCityIsSavedToFavorites(result);
+      console.log(result);
+    } catch (error) {
+      console.error(error);
     }
   }
 
@@ -85,7 +115,11 @@ export default function City() {
           </GridItem>
 
           <GridItem gridRow="2/3" gridColumn="2/-2">
-            <WeatherHeader weatherData={weatherData} />
+            <WeatherHeader
+              weatherData={weatherData}
+              addToFavorites={addToFavorites}
+              cityIsSavedToFavorites={cityIsSavedToFavorites}
+            />
           </GridItem>
 
           <WeatherCards weatherData={weatherData} />

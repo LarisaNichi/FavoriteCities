@@ -1,8 +1,14 @@
 import TextWeatherContent from './textWeatherContent';
+import { useSession, signIn } from 'next-auth/react';
 import { HStack, VStack, Button, Center, Text } from '@chakra-ui/react';
 import { LiaStarSolid } from 'react-icons/lia';
 
-export default function WeatherHeader({ weatherData }) {
+export default function WeatherHeader({
+  weatherData,
+  addToFavorites,
+  cityIsSavedToFavorites,
+}) {
+  const { data: session } = useSession();
   return (
     <HStack justifyContent="space-between" pt="4" pb="2">
       <Button
@@ -11,9 +17,13 @@ export default function WeatherHeader({ weatherData }) {
         px="4"
         fontSize="md"
         fontWeight="semibold"
+        onClick={() => (session ? addToFavorites() : signIn())}
       >
-        <LiaStarSolid /> Add to favorites
+        {/* <LiaStarSolid /> Add to favorites */}
+        <LiaStarSolid />
+        {cityIsSavedToFavorites ? 'Delete from favorites' : 'Add to favorites'}
       </Button>
+
       <Center gap="2">
         <VStack>
           <TextWeatherContent

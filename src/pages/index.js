@@ -23,7 +23,7 @@ export default function Home() {
         bgPosition="center"
         bgRepeat="no-repeat"
         bgSize="cover"
-        h="100vh"
+        h="93vh"
         w="100%"
         position="relative"
       >
