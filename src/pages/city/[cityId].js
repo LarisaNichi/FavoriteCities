@@ -1,6 +1,6 @@
-import CityHeader from '@/components/cityHeader';
-import WeatherCards from '@/components/weatherCards';
-import WeatherHeader from '@/components/weatherHeader';
+import CityHeader from '@/components/compCity/cityHeader';
+import WeatherCards from '@/components/compCity/weatherCards';
+import WeatherHeader from '@/components/compCity/weatherHeader';
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { Grid, GridItem, Box, Center, Button } from '@chakra-ui/react';

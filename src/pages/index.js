@@ -1,4 +1,4 @@
-import HomeContent from '@/components/homeContent';
+import HomeContent from '@/components/compHome/homeContent';
 import Head from 'next/head';
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
