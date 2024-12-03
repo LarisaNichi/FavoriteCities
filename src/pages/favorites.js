@@ -25,7 +25,6 @@ export default function Favorites() {
       const userData = users.filter((user) => user.email === currentUser);
       if (userData.length !== 0) {
         const cities = userData[0].cities;
-        // console.log('cities:', cities);
         setFavoriteCities(cities);
       }
     })();
