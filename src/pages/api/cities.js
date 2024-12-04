@@ -14,7 +14,17 @@ export default async function handler(req, res) {
   if (req.method === 'POST') {
     const { cityToSave, email } = req.body;
     const id = cityToSave.id;
+    await createCity(email, cityToSave, id);
+  }
+  if (req.method === 'GET') {
+    await findCitiesByUser();
+  }
 
+  if (req.method === 'DELETE') {
+    await deleteCity();
+  }
+
+  async function createCity(email, cityToSave, id) {
     const currentUser = await userRepo.findOne({
       where: { email },
       relations: ['cities'],
@@ -32,32 +42,32 @@ export default async function handler(req, res) {
       await userRepo.save(currentUser);
       // citySaved.users = [currentUser];
 
-      res.status(200).json(true);
       console.log('City created');
+      return res.status(200).json(true);
     }
     if (cityExists && !cityIsAlreadySavedByCurrentUser) {
       currentUser.cities.push(cityExists);
       await userRepo.save(currentUser);
 
-      res.status(200).json(true);
       console.log(
         'City exists in the database and was added for a different user'
       );
+      return res.status(200).json(true);
     }
     if (cityExists && cityIsAlreadySavedByCurrentUser) {
-      res.status(200).json(true);
       console.log('This city already exists in your favorite list');
+      return res.status(200).json(true);
     }
   }
 
-  if (req.method === 'GET') {
+  async function findCitiesByUser() {
     const users = await AppDataSource.manager.find('User', {
       relations: ['cities'],
     });
-    res.status(200).json(users);
+    return res.status(200).json(users);
   }
 
-  if (req.method === 'DELETE') {
+  async function deleteCity() {
     const { id: citiesId, email } = req.body;
 
     if (!citiesId || !email) {
@@ -78,7 +88,7 @@ export default async function handler(req, res) {
       user.cities = user.cities.filter((city) => city.id !== citiesId);
 
       await userRepo.save(user);
-      res.status(200).json(false);
+      return res.status(200).json(false);
     }
   }
 }

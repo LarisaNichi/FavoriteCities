@@ -2,17 +2,15 @@ import CityHeader from '@/components/compCity/cityHeader';
 import WeatherCards from '@/components/compCity/weatherCards';
 import WeatherHeader from '@/components/compCity/weatherHeader';
 import { useState, useEffect } from 'react';
-import { useSession } from 'next-auth/react';
-import { Grid, GridItem, Box, Center, Button } from '@chakra-ui/react';
+import { Grid, GridItem, Box, Center } from '@chakra-ui/react';
 import { useRouter } from 'next/router';
+import { useSession } from 'next-auth/react';
 
 export default function ShowCity() {
   const [selectedCity, setSelectedCity] = useState({});
   const [weatherData, setWeatherData] = useState({});
-  const [cityIsSavedToFavorites, setCityIsSavedToFavorites] = useState();
   const router = useRouter();
   const { cityId, country, id, latitude, longitude } = router.query;
-  const { data: session } = useSession();
 
   useEffect(() => {
     if (router.isReady) {
@@ -50,49 +48,6 @@ export default function ShowCity() {
       setWeatherData(weatherData);
     } catch (err) {
       console.log(err);
-    }
-  }
-
-  async function addToFavorites() {
-    try {
-      const response = await fetch('/api/cities', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          cityToSave: {
-            id,
-            name: decodeURI(cityId),
-            country,
-            latitude,
-            longitude,
-          },
-          email: session.user.email,
-        }),
-      });
-      const result = await response.json();
-      setCityIsSavedToFavorites(result);
-      // console.log(result);
-    } catch (error) {
-      console.error(error);
-    }
-  }
-
-  async function deleteCityFromFavorites() {
-    try {
-      const response = await fetch('/api/cities', {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ id, email: session.user.email }),
-      });
-      const result = await response.json();
-      setCityIsSavedToFavorites(result);
-      // console.log(result);
-    } catch (error) {
-      console.error(error);
     }
   }
 
@@ -134,9 +89,11 @@ export default function ShowCity() {
           <GridItem gridRow="2/3" gridColumn="2/-2">
             <WeatherHeader
               weatherData={weatherData}
-              addToFavorites={addToFavorites}
-              deleteCityFromFavorites={deleteCityFromFavorites}
-              cityIsSavedToFavorites={cityIsSavedToFavorites}
+              cityId={cityId}
+              country={country}
+              id={id}
+              latitude={latitude}
+              longitude={longitude}
             />
           </GridItem>
 

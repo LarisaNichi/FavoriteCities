@@ -1,17 +1,76 @@
 import TextWeatherContent from './textWeatherContent';
 import { useSession, signIn } from 'next-auth/react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { HStack, VStack, Button, Center, Text } from '@chakra-ui/react';
 import { LiaStarSolid } from 'react-icons/lia';
 
 export default function WeatherHeader({
   weatherData,
-  addToFavorites,
-  deleteCityFromFavorites,
-  cityIsSavedToFavorites,
+  cityId,
+  country,
+  id,
+  latitude,
+  longitude,
 }) {
-  const [isToggled, setIsToggled] = useState(false);
+  const [cityIsSavedToFavorites, setCityIsSavedToFavorites] = useState();
   const { data: session } = useSession();
+  const currentUser = session?.user.email;
+
+  useEffect(() => {
+    (async () => {
+      const res = await fetch('/api/cities');
+      const users = await res.json();
+      const userData = users.filter((user) => user.email === currentUser);
+      if (userData.length !== 0) {
+        const cities = userData[0].cities;
+        const isSavedToFavorites = cities.some((city) => city.id === id);
+        setCityIsSavedToFavorites(isSavedToFavorites);
+      }
+    })();
+  }, [id, currentUser]);
+
+  async function addToFavorites() {
+    try {
+      const response = await fetch('/api/cities', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          cityToSave: {
+            id,
+            name: decodeURI(cityId),
+            country,
+            latitude,
+            longitude,
+          },
+          email: session.user.email,
+        }),
+      });
+      // const result = await response.json();
+      // setCityIsSavedToFavorites(result);
+      // console.log(result);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  async function deleteCityFromFavorites() {
+    try {
+      const response = await fetch('/api/cities', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ id, email: session.user.email }),
+      });
+      // const result = await response.json();
+      // setCityIsSavedToFavorites(result);
+      // console.log(result);
+    } catch (error) {
+      console.error(error);
+    }
+  }
 
   function handleClick() {
     if (!session) {
@@ -19,11 +78,11 @@ export default function WeatherHeader({
     }
     if (session && !cityIsSavedToFavorites) {
       addToFavorites();
-      setIsToggled(true);
+      setCityIsSavedToFavorites(true);
     }
     if (session && cityIsSavedToFavorites) {
       deleteCityFromFavorites();
-      setIsToggled(false);
+      setCityIsSavedToFavorites(false);
     }
   }
 
@@ -38,7 +97,7 @@ export default function WeatherHeader({
         onClick={handleClick}
       >
         <LiaStarSolid />
-        {isToggled ? 'Delete from favorites' : 'Add to favorites'}
+        {cityIsSavedToFavorites ? 'Delete from favorites' : 'Add to favorites'}
       </Button>
 
       <Center gap="2">

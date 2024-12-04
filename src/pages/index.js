@@ -26,13 +26,15 @@ export default function Home() {
   }, [currentUser]);
 
   useEffect(() => {
-    getRandomCities(targetCount)
-      .then((data) => {
-        getCityAndCountry(data).then((data) => {
-          setRandomCities(data.slice(0, numRandomCities));
-        });
-      })
-      .catch((error) => console.error('Error fetching data:', error));
+    (async () => {
+      await getRandomCities(targetCount)
+        .then((data) => {
+          getCityAndCountry(data).then((data) => {
+            setRandomCities(data.slice(0, numRandomCities));
+          });
+        })
+        .catch((error) => console.error('Error fetching data:', error));
+    })();
   }, []);
 
   function getRandomItems(arr, numItems) {
