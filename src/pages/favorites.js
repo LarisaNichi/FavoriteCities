@@ -30,19 +30,21 @@ export default function Favorites() {
     })();
   }, [currentUser]);
 
-  async function deleteCityFromFavorites(id, email) {
+  async function deleteCityFromFavorites(latitude, longitude, email) {
     try {
       const response = await fetch('/api/cities', {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ id, email }),
+        body: JSON.stringify({ latitude, longitude, email }),
       });
       const result = await response.json();
       console.log(result);
       if (response.ok) {
-        const newCitiesList = favoriteCities.filter((city) => city.id !== id);
+        const newCitiesList = favoriteCities.filter(
+          (city) => city.latitude !== latitude && city.longitude !== longitude
+        );
         setFavoriteCities(newCitiesList);
       }
     } catch (error) {
@@ -113,7 +115,7 @@ export default function Favorites() {
                   onClick={() => {
                     router.push({
                       pathname: `/city/${name}`,
-                      query: { country, latitude, longitude, id },
+                      query: { country, latitude, longitude },
                     });
                   }}
                 >
@@ -124,7 +126,9 @@ export default function Favorites() {
                   colorPalette="blue"
                   size="sm"
                   px="2"
-                  onClick={() => deleteCityFromFavorites(id, currentUser)}
+                  onClick={() =>
+                    deleteCityFromFavorites(latitude, longitude, currentUser)
+                  }
                 >
                   Delete
                 </Button>

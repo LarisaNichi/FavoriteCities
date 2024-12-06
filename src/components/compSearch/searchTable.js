@@ -53,7 +53,7 @@ export default function SearchTable({ citiesData }) {
                       onClick={() => {
                         router.push({
                           pathname: `/city/${name}`,
-                          query: { country, latitude, longitude, id },
+                          query: { country, latitude, longitude },
                         });
                       }}
                       type="button"
