@@ -9,7 +9,6 @@ export default function HomeContent({ randomFavoriteCities, randomCities }) {
   const { data: session } = useSession();
   const [location, setLocation] = useState({});
   const [loading, setLoading] = useState(false);
-  const GEOAPIFY_API_KEY = 'af264dbac5a54115ba864e6e25df5fe6';
 
   useEffect(() => {
     getGeolocation();
@@ -41,28 +40,19 @@ export default function HomeContent({ randomFavoriteCities, randomCities }) {
     setLocation({ city, country, latitude, longitude });
   };
 
-  async function getLocationOnPosition(latitude, longitude) {
-    try {
-      const response = await fetch(
-        `https://api.geoapify.com/v1/geocode/reverse?lat=${latitude}&lon=${longitude}&apiKey=${GEOAPIFY_API_KEY}`
-      );
-      const data = await response.json();
-      if (data.features && data.features.length > 0) {
-        const { city, country } = data.features[0].properties;
-        setLocation((prevState) => ({
-          ...prevState,
-          city,
-          country,
-        }));
-      } else {
-        console.error('Location not found');
-      }
-    } catch (error) {
-      console.error('Failed to fetch location', error);
-    } finally {
-      setLoading(false);
-    }
-  }
+  const getLocationOnPosition = async (latitude, longitude) => {
+    const query = new URLSearchParams({ latitude, longitude }).toString();
+    const response = await fetch(`/api/geoapify?${query}`);
+    const result = await response.json();
+    const { city, country } = result;
+    setLoading(false);
+    setLocation((prevState) => ({
+      ...prevState,
+      city,
+      country,
+    }));
+  };
+
   return (
     <>
       <HomeLayout>
