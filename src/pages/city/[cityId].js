@@ -1,21 +1,38 @@
-import CityHeader from '@/components/cityHeader';
-import WeatherCards from '@/components/weatherCards';
-import WeatherHeader from '@/components/weatherHeader';
+import CityHeader from '@/components/compCity/cityHeader';
+import WeatherCards from '@/components/compCity/weatherCards';
+import WeatherHeader from '@/components/compCity/weatherHeader';
 import { useState, useEffect } from 'react';
 import { Grid, GridItem, Box, Center } from '@chakra-ui/react';
+import { useRouter } from 'next/router';
+import { useSession } from 'next-auth/react';
 
-export default function City() {
-  const [localSelectedCity, setLocalSelectedCity] = useState({});
+export default function ShowCity() {
+  const [selectedCity, setSelectedCity] = useState({});
   const [weatherData, setWeatherData] = useState({});
+  const router = useRouter();
+  const { cityId, country, id, latitude, longitude } = router.query;
 
   useEffect(() => {
-    const selectedCity = JSON.parse(localStorage.getItem('selectedCity')) ?? '';
-    if (selectedCity) {
-      setLocalSelectedCity(selectedCity);
-      const { latitude, longitude } = selectedCity;
+    if (router.isReady) {
+      getCityData();
       getWeatherData(latitude, longitude);
     }
-  }, []);
+  }, [router.isReady, latitude, longitude]);
+
+  async function getCityData() {
+    try {
+      const res = await fetch(
+        `https://geocoding-api.open-meteo.com/v1/get?id=${id}`
+      );
+      if (!res.ok) {
+        throw new Error('Network response was not ok');
+      }
+      const city = await res.json();
+      setSelectedCity(city);
+    } catch (err) {
+      console.log(err);
+    }
+  }
 
   async function getWeatherData(latitude, longitude) {
     try {
@@ -34,7 +51,11 @@ export default function City() {
     }
   }
 
-  if (Object.keys(weatherData).length === 0) return null;
+  if (
+    Object.keys(weatherData).length === 0 ||
+    Object.keys(selectedCity).length === 0
+  )
+    return null;
 
   return (
     <>
@@ -52,7 +73,7 @@ export default function City() {
           alignContent="center"
         >
           <GridItem gridRow="1/2" gridColumn="1/-1">
-            <CityHeader localSelectedCity={localSelectedCity} />
+            <CityHeader selectedCity={selectedCity} />
           </GridItem>
 
           <GridItem
@@ -66,7 +87,14 @@ export default function City() {
           </GridItem>
 
           <GridItem gridRow="2/3" gridColumn="2/-2">
-            <WeatherHeader weatherData={weatherData} />
+            <WeatherHeader
+              weatherData={weatherData}
+              cityId={cityId}
+              country={country}
+              id={id}
+              latitude={latitude}
+              longitude={longitude}
+            />
           </GridItem>
 
           <WeatherCards weatherData={weatherData} />

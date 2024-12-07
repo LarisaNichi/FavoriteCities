@@ -33,15 +33,7 @@ export default function SearchTable({ citiesData }) {
           </Table.Header>
           <Table.Body>
             {citiesData.map(
-              ({
-                name,
-                country,
-                latitude,
-                longitude,
-                population,
-                country_code,
-                id,
-              }) => (
+              ({ name, country, latitude, longitude, country_code, id }) => (
                 <Table.Row key={id}>
                   <Table.Cell py="1.5" pl={{ base: '2', sm: '5' }}>
                     <Image
@@ -59,18 +51,10 @@ export default function SearchTable({ citiesData }) {
                   <Table.Cell>
                     <IconButton
                       onClick={() => {
-                        localStorage.setItem(
-                          'selectedCity',
-                          JSON.stringify({
-                            name,
-                            country,
-                            latitude,
-                            longitude,
-                            population,
-                            country_code,
-                          })
-                        );
-                        router.push('/city');
+                        router.push({
+                          pathname: `/city/${name}`,
+                          query: { country, latitude, longitude, id },
+                        });
                       }}
                       type="button"
                       aria-label="select"

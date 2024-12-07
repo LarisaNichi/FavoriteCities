@@ -17,14 +17,12 @@ export const authOptions = {
         password: { label: 'Password', type: 'password', required: true },
       },
       authorize: async (credentials) => {
-        console.log(credentials);
-
         if (!AppDataSource.isInitialized) {
           await AppDataSource.initialize();
         }
         const userRepo = AppDataSource.getRepository(User);
         const { email, password } = credentials;
-        const userExists = await userRepo.findOne({ where: { email } });
+        const userExists = await userRepo.findOneBy({ email });
 
         if (!userExists) {
           const hashedPassword = bcrypt.hashSync(password, 10);
@@ -39,6 +37,26 @@ export const authOptions = {
         }
         // console.log('Email already in use.');
         return null;
+      },
+
+      callbacks: {
+        async jwt({ token, user }) {
+          if (user) {
+            token.id = user.id;
+          }
+          return token;
+        },
+
+        async session({ session, token }) {
+          session.user.id = token.id;
+          return session;
+        },
+      },
+      session: {
+        strategy: 'jwt',
+      },
+      jwt: {
+        encryption: true,
       },
     }),
   ],

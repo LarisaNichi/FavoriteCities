@@ -8,11 +8,12 @@ import { useId } from 'react';
 export default function Navigation() {
   const { data: session } = useSession();
   const id = useId();
-  const tabs = [
+  const tabSession = [
     { label: 'Home', path: '/' },
     { label: 'Search', path: '/search' },
     { label: 'Favorites', path: '/favorites' },
   ];
+  const tabNoSession = tabSession.filter((tab) => tab.label !== 'Favorites');
 
   const styleButtonNav = {
     px: {
@@ -40,34 +41,46 @@ export default function Navigation() {
         />
         <Group gap="3">
           <HStack as="ul" gap="2">
-            {tabs.map(({ label, path }) => (
-              <Link href={path} key={path}>
-                <Button as="li" css={styleButtonNav} variant="ghost">
-                  {label}
-                </Button>
-              </Link>
-            ))}
-
             {!session && (
-              <Button css={styleButtonNav} onClick={() => signIn()}>
-                Sign In
-              </Button>
-            )}
-            {session && (
-              <HStack>
-                <Button css={styleButtonNav} onClick={() => signOut()}>
-                  Sign Out
-                </Button>
+              <>
+                {tabNoSession.map(({ label, path }) => (
+                  <Link href={path} key={path}>
+                    <Button as="li" css={styleButtonNav} variant="ghost">
+                      {label}
+                    </Button>
+                  </Link>
+                ))}
 
-                <Tooltip
-                  ids={{ trigger: id }}
-                  content={session.user.email}
-                  contentProps={{ css: { '--tooltip-bg': 'blue' } }}
-                  positioning={{ placement: 'right-left' }}
-                >
-                  <Avatar ids={{ root: id }} colorPalette="blue" />
-                </Tooltip>
-              </HStack>
+                <Button css={styleButtonNav} onClick={() => signIn()}>
+                  Sign In
+                </Button>
+              </>
+            )}
+
+            {session && (
+              <>
+                {tabSession.map(({ label, path }) => (
+                  <Link href={path} key={path}>
+                    <Button as="li" css={styleButtonNav} variant="ghost">
+                      {label}
+                    </Button>
+                  </Link>
+                ))}
+                <HStack>
+                  <Button css={styleButtonNav} onClick={() => signOut()}>
+                    Sign Out
+                  </Button>
+
+                  <Tooltip
+                    ids={{ trigger: id }}
+                    content={session.user.email}
+                    contentProps={{ css: { '--tooltip-bg': 'blue' } }}
+                    positioning={{ placement: 'right-left' }}
+                  >
+                    <Avatar ids={{ root: id }} colorPalette="blue" />
+                  </Tooltip>
+                </HStack>
+              </>
             )}
           </HStack>
         </Group>

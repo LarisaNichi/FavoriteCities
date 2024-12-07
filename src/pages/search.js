@@ -1,4 +1,4 @@
-import SearchTable from '@/components/searchTable';
+import SearchTable from '@/components/compSearch/searchTable';
 import { useState } from 'react';
 import { Field } from '@/components/ui/field';
 import { LuSearch } from 'react-icons/lu';
