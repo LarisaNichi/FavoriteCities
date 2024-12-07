@@ -1,31 +1,30 @@
-import { useRouter } from 'next/router';
-import { Button, VStack } from '@chakra-ui/react';
+import Link from 'next/link';
+import { VStack, Card } from '@chakra-ui/react';
 
 export default function HomeCitiesContent({ cities }) {
-  const router = useRouter();
   return (
     <VStack gap={{ base: '2', sm: '4' }}>
       {cities.map(({ id, name, country, latitude, longitude }) => (
-        <Button
+        <Card.Root
           key={id}
-          variant="subtle"
           width="100%"
-          size="md"
-          colorPalette="blue"
-          lineHeight="1.2"
-          py="7"
-          onClick={() => {
-            router.push({
-              pathname: `/city/${name}`,
-              query: { country, latitude, longitude, id },
-            });
-          }}
+          variant="subtle"
+          bg="blue.100"
+          color="blue.700"
+          textAlign="center"
         >
-          <VStack>
-            <span>{name}</span>
-            <span>{country}</span>
-          </VStack>
-        </Button>
+          <Link
+            href={{
+              pathname: `/city/${name}`,
+              query: { country, latitude, longitude },
+            }}
+          >
+            <Card.Body p="2" fontWeight="semibold">
+              <Card.Title>{name}</Card.Title>
+              <Card.Description>{country}</Card.Description>
+            </Card.Body>
+          </Link>
+        </Card.Root>
       ))}
     </VStack>
   );

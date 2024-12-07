@@ -10,7 +10,7 @@ export default function Home() {
   const currentUser = session?.user.email;
   const targetCount = 7;
   const numItems = 5;
-  const numRandomCities = 4;
+  const numRandomCities = 5;
 
   useEffect(() => {
     (async () => {

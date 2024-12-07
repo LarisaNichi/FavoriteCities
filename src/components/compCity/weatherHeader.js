@@ -4,17 +4,11 @@ import { useState, useEffect } from 'react';
 import { HStack, VStack, Button, Center, Text } from '@chakra-ui/react';
 import { LiaStarSolid } from 'react-icons/lia';
 
-export default function WeatherHeader({
-  weatherData,
-  cityId,
-  country,
-  id,
-  latitude,
-  longitude,
-}) {
+export default function WeatherHeader({ weatherData, cityData }) {
   const [cityIsSavedToFavorites, setCityIsSavedToFavorites] = useState();
   const { data: session } = useSession();
   const currentUser = session?.user.email;
+  const { cityId, country, latitude, longitude } = cityData;
 
   useEffect(() => {
     (async () => {
@@ -23,11 +17,13 @@ export default function WeatherHeader({
       const userData = users.filter((user) => user.email === currentUser);
       if (userData.length !== 0) {
         const cities = userData[0].cities;
-        const isSavedToFavorites = cities.some((city) => city.id === id);
+        const isSavedToFavorites = cities.some(
+          (city) => city.latitude === latitude && city.longitude === longitude
+        );
         setCityIsSavedToFavorites(isSavedToFavorites);
       }
     })();
-  }, [id, currentUser]);
+  }, [latitude, longitude, currentUser]);
 
   async function addToFavorites() {
     try {
@@ -38,7 +34,6 @@ export default function WeatherHeader({
         },
         body: JSON.stringify({
           cityToSave: {
-            id,
             name: decodeURI(cityId),
             country,
             latitude,
@@ -47,9 +42,8 @@ export default function WeatherHeader({
           email: session.user.email,
         }),
       });
-      // const result = await response.json();
-      // setCityIsSavedToFavorites(result);
-      // console.log(result);
+      const result = await response.json();
+      setCityIsSavedToFavorites(result);
     } catch (error) {
       console.error(error);
     }
@@ -62,11 +56,14 @@ export default function WeatherHeader({
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ id, email: session.user.email }),
+        body: JSON.stringify({
+          latitude,
+          longitude,
+          email: session.user.email,
+        }),
       });
-      // const result = await response.json();
-      // setCityIsSavedToFavorites(result);
-      // console.log(result);
+      const result = await response.json();
+      setCityIsSavedToFavorites(result);
     } catch (error) {
       console.error(error);
     }
@@ -78,11 +75,9 @@ export default function WeatherHeader({
     }
     if (session && !cityIsSavedToFavorites) {
       addToFavorites();
-      setCityIsSavedToFavorites(true);
     }
     if (session && cityIsSavedToFavorites) {
       deleteCityFromFavorites();
-      setCityIsSavedToFavorites(false);
     }
   }
 

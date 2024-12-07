@@ -4,13 +4,12 @@ import WeatherHeader from '@/components/compCity/weatherHeader';
 import { useState, useEffect } from 'react';
 import { Grid, GridItem, Box, Center } from '@chakra-ui/react';
 import { useRouter } from 'next/router';
-import { useSession } from 'next-auth/react';
 
 export default function ShowCity() {
   const [selectedCity, setSelectedCity] = useState({});
   const [weatherData, setWeatherData] = useState({});
   const router = useRouter();
-  const { cityId, country, id, latitude, longitude } = router.query;
+  const { cityId, latitude, longitude } = router.query;
 
   useEffect(() => {
     if (router.isReady) {
@@ -22,13 +21,13 @@ export default function ShowCity() {
   async function getCityData() {
     try {
       const res = await fetch(
-        `https://geocoding-api.open-meteo.com/v1/get?id=${id}`
+        `https://geocoding-api.open-meteo.com/v1/search?name=${cityId}&count=1&language=en&format=json`
       );
       if (!res.ok) {
         throw new Error('Network response was not ok');
       }
       const city = await res.json();
-      setSelectedCity(city);
+      setSelectedCity(...city.results);
     } catch (err) {
       console.log(err);
     }
@@ -87,14 +86,7 @@ export default function ShowCity() {
           </GridItem>
 
           <GridItem gridRow="2/3" gridColumn="2/-2">
-            <WeatherHeader
-              weatherData={weatherData}
-              cityId={cityId}
-              country={country}
-              id={id}
-              latitude={latitude}
-              longitude={longitude}
-            />
+            <WeatherHeader weatherData={weatherData} cityData={router.query} />
           </GridItem>
 
           <WeatherCards weatherData={weatherData} />

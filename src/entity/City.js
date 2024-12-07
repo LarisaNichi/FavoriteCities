@@ -5,8 +5,9 @@ export const City = new EntitySchema({
   tableName: 'cities',
   columns: {
     id: {
-      type: 'varchar',
+      type: 'int',
       primary: true,
+      generated: true,
     },
     name: {
       type: 'varchar',
