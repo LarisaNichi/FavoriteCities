@@ -10,25 +10,48 @@ import {
   Group,
   Button,
   Flex,
+  Center,
 } from '@chakra-ui/react';
+import { Rating } from '@/components/ui/rating';
 
 export default function Favorites() {
   const [favoriteCities, setFavoriteCities] = useState([]);
+  const [ratings, setRatings] = useState([]);
+  // const [ratingsSaved, setRatingSaved] = useState([]);
+  // const [isSubmited, setIsSubmited] = useState(false);
   const { data: session } = useSession();
   const currentUser = session?.user.email;
   const router = useRouter();
 
   useEffect(() => {
     (async () => {
-      const res = await fetch('/api/cities');
-      const users = await res.json();
-      const userData = users.filter((user) => user.email === currentUser);
-      if (userData.length !== 0) {
-        const cities = userData[0].cities;
-        setFavoriteCities(cities);
-      }
+      await fetchUserFavoriteCities().then((data) => {
+        if (data.length !== 0) {
+          const cities = data[0].cities;
+          setFavoriteCities(cities);
+        }
+      });
+      await fetchUserRatings(currentUser).then((data) => {
+        // setRatingSaved(data);
+        console.log('GET: data from ratings API', data);
+      });
     })();
   }, [currentUser]);
+
+  async function fetchUserFavoriteCities() {
+    const res = await fetch('/api/cities');
+    const users = await res.json();
+    console.log('users from cities:', users);
+    const userData = users.filter((user) => user.email === currentUser);
+    return userData;
+  }
+
+  async function fetchUserRatings(email) {
+    const query = new URLSearchParams({ email }).toString();
+    const res = await fetch(`/api/ratings?${query}`);
+    const ratings = await res.json();
+    return ratings;
+  }
 
   async function deleteCityFromFavorites(latitude, longitude, email) {
     try {
@@ -47,6 +70,45 @@ export default function Favorites() {
         );
         setFavoriteCities(newCitiesList);
       }
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  function handleRatingOnChange(e, name, latitude, longitude) {
+    // {[id]:{ratingData}}
+    const ratingData = {
+      score: +e.target.value,
+      name,
+      latitude,
+      longitude,
+    };
+
+    setRatings((prev) => [
+      ...prev.filter(
+        (rating) =>
+          rating.latitude !== latitude && rating.longitude !== longitude
+      ),
+      ratingData,
+    ]);
+  }
+  console.log('ratings added:', ratings);
+
+  async function sendRatings() {
+    try {
+      const response = await fetch('/api/ratings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ratings,
+          email: currentUser,
+        }),
+      });
+      const result = await response.json();
+      console.log('POST: data from ratings API', result);
+      // setIsSubmited(true);
     } catch (error) {
       console.error(error);
     }
@@ -79,12 +141,11 @@ export default function Favorites() {
         templateColumns={{
           base: '1fr',
           md: 'repeat(2, 1fr)',
-          xl: 'repeat(3, 1fr)',
         }}
         maxW={{
           base: '90%',
-          sm: '70%',
-          md: '80%',
+          sm: '75%',
+          md: '85%',
           lg: '70%',
         }}
         columnGap="6"
@@ -132,11 +193,32 @@ export default function Favorites() {
                 >
                   Delete
                 </Button>
+                <Rating
+                  defaultValue={0}
+                  size="sm"
+                  colorPalette="blue"
+                  onChange={(e) => {
+                    handleRatingOnChange(e, name, latitude, longitude);
+                  }}
+                />
               </Group>
             </Flex>
           </GridItem>
         ))}
       </Grid>
+      <Center>
+        <Button
+          variant="solid"
+          size="md"
+          px="4"
+          my="7"
+          onClick={() => {
+            sendRatings();
+          }}
+        >
+          Send your Rating!
+        </Button>
+      </Center>
     </>
   );
 }
