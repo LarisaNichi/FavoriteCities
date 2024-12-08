@@ -1,6 +1,7 @@
 import AppDataSource from '@/data-source';
 import User from '@/entity/User';
 import City from '@/entity/City';
+import Rating from '@/entity/Rating';
 
 export default async function handler(req, res) {
   if (!AppDataSource.isInitialized) {
@@ -8,6 +9,7 @@ export default async function handler(req, res) {
   }
   const userRepo = AppDataSource.getRepository(User);
   const cityRepo = AppDataSource.getRepository(City);
+  const ratingRepo = AppDataSource.getRepository(Rating);
 
   let cityIsAlreadySavedByCurrentUser;
 
@@ -85,6 +87,11 @@ export default async function handler(req, res) {
       where: { latitude, longitude },
     });
 
+    const rating = await AppDataSource.manager.find('Rating', {
+      relations: ['users', 'cities'],
+      where: { users: { email }, cities: { latitude, longitude } },
+    });
+
     if (!user || !city) {
       return res.status(404).json({
         message: `City's coordinates and Email not found`,
@@ -93,8 +100,10 @@ export default async function handler(req, res) {
       user.cities = user.cities.filter(
         (city) => city.latitude !== latitude && city.longitude !== longitude
       );
-
       await userRepo.save(user);
+      if (rating) {
+        await ratingRepo.remove(rating);
+      }
       return res.status(200).json(false);
     }
   }

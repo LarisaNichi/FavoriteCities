@@ -1,4 +1,4 @@
-import { EntitySchema } from 'typeorm';
+import { EntitySchema, JoinColumn } from 'typeorm';
 
 export const User = new EntitySchema({
   name: 'User',
@@ -23,6 +23,12 @@ export const User = new EntitySchema({
       joinTable: true,
       cascade: true,
       // eager: true,
+    },
+    ratings: {
+      target: 'Rating',
+      type: 'one-to-many',
+      inverseSide: 'ratings',
+      cascade: true,
     },
   },
 });
