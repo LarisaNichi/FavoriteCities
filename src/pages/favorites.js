@@ -17,8 +17,7 @@ import { Rating } from '@/components/ui/rating';
 export default function Favorites() {
   const [favoriteCities, setFavoriteCities] = useState([]);
   const [ratings, setRatings] = useState([]);
-  // const [ratingsSaved, setRatingSaved] = useState([]);
-  // const [isSubmited, setIsSubmited] = useState(false);
+  const [ratingsSaved, setRatingsSaved] = useState([]);
   const { data: session } = useSession();
   const currentUser = session?.user.email;
   const router = useRouter();
@@ -32,7 +31,7 @@ export default function Favorites() {
         }
       });
       await fetchUserRatings(currentUser).then((data) => {
-        // setRatingSaved(data);
+        setRatingsSaved(data);
         console.log('GET: data from ratings API', data);
       });
     })();
@@ -63,7 +62,7 @@ export default function Favorites() {
         body: JSON.stringify({ latitude, longitude, email }),
       });
       const result = await response.json();
-      console.log(result);
+      // console.log(result);
       if (response.ok) {
         const newCitiesList = favoriteCities.filter(
           (city) => city.latitude !== latitude && city.longitude !== longitude
@@ -92,7 +91,6 @@ export default function Favorites() {
       ratingData,
     ]);
   }
-  console.log('ratings added:', ratings);
 
   async function sendRatings() {
     try {
@@ -107,10 +105,20 @@ export default function Favorites() {
         }),
       });
       const result = await response.json();
-      console.log('POST: data from ratings API', result);
-      // setIsSubmited(true);
+      setRatingsSaved(result);
     } catch (error) {
       console.error(error);
+    }
+  }
+
+  function getCityScore(latitude, longitude) {
+    const cityRating = ratingsSaved.find(
+      (rating) => rating.latitude === latitude && rating.longitude === longitude
+    );
+    if (ratingsSaved.length !== 0 && cityRating) {
+      return cityRating.score;
+    } else {
+      return 0;
     }
   }
 
@@ -152,59 +160,72 @@ export default function Favorites() {
         rowGap="2"
         mx="auto"
       >
-        {favoriteCities.map(({ id, name, country, latitude, longitude }) => (
-          <GridItem key={id}>
-            <Flex
-              gap="6"
-              justifyContent="space-between"
-              alignItems="center"
-              bg="blue.100"
-              py="2"
-              px="5"
-            >
-              <Box textAlign="left">
-                <Text>
-                  {name}, {country}
-                </Text>
-              </Box>
-              <Group>
-                <Button
-                  variant="solid"
-                  colorPalette="blue"
-                  size="sm"
-                  px="2"
-                  onClick={() => {
-                    router.push({
-                      pathname: `/city/${name}`,
-                      query: { country, latitude, longitude },
-                    });
-                  }}
-                >
-                  View
-                </Button>
-                <Button
-                  variant="subtle"
-                  colorPalette="blue"
-                  size="sm"
-                  px="2"
-                  onClick={() =>
-                    deleteCityFromFavorites(latitude, longitude, currentUser)
-                  }
-                >
-                  Delete
-                </Button>
-                <Rating
-                  defaultValue={0}
-                  size="sm"
-                  colorPalette="blue"
-                  onChange={(e) => {
-                    handleRatingOnChange(e, name, latitude, longitude);
-                  }}
-                />
-              </Group>
-            </Flex>
-          </GridItem>
-        ))}
+        {favoriteCities.map(({ id, name, country, latitude, longitude }) => {
+          const score = getCityScore(latitude, longitude);
+          return (
+            <GridItem key={id}>
+              <Flex
+                gap="6"
+                justifyContent="space-between"
+                alignItems="center"
+                bg="blue.100"
+                py="2"
+                px="5"
+              >
+                <Box textAlign="left">
+                  <Text>
+                    {name}, {country}
+                  </Text>
+                </Box>
+                <Group>
+                  <Button
+                    variant="solid"
+                    colorPalette="blue"
+                    size="sm"
+                    px="2"
+                    onClick={() => {
+                      router.push({
+                        pathname: `/city/${name}`,
+                        query: { country, latitude, longitude },
+                      });
+                    }}
+                  >
+                    View
+                  </Button>
+                  <Button
+                    variant="subtle"
+                    colorPalette="blue"
+                    size="sm"
+                    px="2"
+                    onClick={() =>
+                      deleteCityFromFavorites(latitude, longitude, currentUser)
+                    }
+                  >
+                    Delete
+                  </Button>
+                  {score && (
+                    <Rating
+                      value={score}
+                      readOnly
+                      size="sm"
+                      colorPalette="blue"
+                    />
+                  )}
+                  {score === 0 && (
+                    <Rating
+                      defaultValue={0}
+                      onChange={(e) => {
+                        handleRatingOnChange(e, name, latitude, longitude);
+                      }}
+                      size="sm"
+                      colorPalette="blue"
+                    />
+                  )}
+                </Group>
+              </Flex>
+            </GridItem>
+          );
+        })}
       </Grid>
       <Center>
         <Button
