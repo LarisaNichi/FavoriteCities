@@ -18,6 +18,7 @@ export default function FavoritesContent({
   deleteCityFromFavorites,
   handleRatingOnChange,
   sendRatings,
+  currentUser,
 }) {
   const router = useRouter();
 

@@ -118,6 +118,7 @@ export default function Favorites() {
         deleteCityFromFavorites={deleteCityFromFavorites}
         handleRatingOnChange={handleRatingOnChange}
         sendRatings={sendRatings}
+        currentUser={currentUser}
       ></FavoritesContent>
       ;
     </>
