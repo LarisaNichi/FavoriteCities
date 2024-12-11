@@ -28,6 +28,11 @@ export const City = new EntitySchema({
       type: 'many-to-many',
       inverseSide: 'cities',
     },
+    ratings: {
+      target: 'Rating',
+      type: 'one-to-many',
+      cascade: true,
+    },
   },
 });
 
