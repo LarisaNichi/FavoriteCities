@@ -1,13 +1,12 @@
 import AppDataSource from '@/data-source';
 import User from '@/entity/User';
-import City from '@/entity/City';
 import Rating from '@/entity/Rating';
+import { findCitiesByUser } from '@/pages/api/cities';
 
 export default async function handler(req, res) {
   if (!AppDataSource.isInitialized) {
     await AppDataSource.initialize();
   }
-
   const ratingRepo = AppDataSource.getRepository(Rating);
   const userRepo = AppDataSource.getRepository(User);
 
@@ -16,12 +15,7 @@ export default async function handler(req, res) {
     const currentUser = await userRepo.findOne({
       where: { email },
     });
-
-    const userCitiesData = await AppDataSource.manager.find('User', {
-      where: { email },
-      relations: ['cities'],
-    });
-    const userCities = userCitiesData[0].cities;
+    const userCities = await findCitiesByUser(email);
 
     //Deletes repeated cities rated
     ratings.forEach(async ({ latitude, longitude }) => {
@@ -36,7 +30,7 @@ export default async function handler(req, res) {
       }
     });
 
-    //Save ratings
+    // Save ratings
     const ratingSaved = ratingRepo.create(
       ratings.map((rating) => ({
         ...rating,
@@ -44,11 +38,8 @@ export default async function handler(req, res) {
         cities: getRatedCity(rating.latitude, rating.longitude),
       }))
     );
-
     await ratingRepo.save(ratingSaved);
     // console.log('Rating saved successfully:', ratingSaved);
-
-    // await ratingRepo.delete({});
 
     function getRatedCity(latitude, longitude) {
       const ratedCity = userCities.find(
@@ -57,40 +48,38 @@ export default async function handler(req, res) {
       return ratedCity;
     }
 
-    const ratingsSavedByUser = await AppDataSource.manager.find('Rating', {
-      relations: ['cities'],
-      where: { users: { email } },
-    });
-
-    return res.status(200).json(ratingsSavedByUser);
-
-    // await ratingRepo.clear();
-    // await ratingRepo.query(`DELETE FROM sqlite_sequence WHERE name = 'Rating'`);
-
-    // await AppDataSource.getRepository(Rating)
-    //   .createQueryBuilder()
-    //   .delete()
-    //   .from('sqlite_sequence')
-    //   .where({ name: 'Rating' })
-    //   .execute();
-    // console.log('Auto-increment ID has been reset.');
+    //Returns cities with scores
+    const userRatings = await findRatingsByUser(email);
+    const citiesWithScores = getCitiesWithScores(userRatings, userCities);
+    return res.status(200).json(citiesWithScores);
   }
 
   if (req.method === 'GET') {
     const { email } = req.query;
-    await findRatingsByUser(email);
-  }
-
-  async function findRatingsByUser(email) {
-    const userRatings = await AppDataSource.manager.find('Rating', {
-      relations: ['cities'],
-      where: { users: { email } },
-    });
-
-    // const userRatingsSent = userRatings.map(({ cities, users, ...rest }) => ({
-    //   cities,
-    //   ...rest,
-    // }));
+    const userRatings = await findRatingsByUser(email);
     return res.status(200).json(userRatings);
   }
 }
+
+export async function findRatingsByUser(email) {
+  const userRatings = await AppDataSource.manager.find('Rating', {
+    relations: ['cities'],
+    where: { users: { email } },
+  });
+  return userRatings;
+}
+
+export function getCitiesWithScores(userRatings, userCities) {
+  const ratingsObj = userRatings.reduce(
+    (acc, rating) => ({ ...acc, [rating.cities?.id]: rating.score }),
+    {}
+  );
+  const citiesWithScores = userCities.map((city) => ({
+    ...city,
+    score: ratingsObj[city.id] ?? 0,
+  }));
+  return citiesWithScores;
+}
+
+// await ratingRepo.delete({});
+// await ratingRepo.clear();
