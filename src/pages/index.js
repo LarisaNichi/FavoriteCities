@@ -14,11 +14,12 @@ export default function Home() {
 
   useEffect(() => {
     (async () => {
-      const res = await fetch('/api/cities');
-      const users = await res.json();
-      const userData = users.filter((user) => user.email === currentUser);
-      if (userData.length !== 0) {
-        const cities = userData[0].cities;
+      if (currentUser) {
+        const query = new URLSearchParams({
+          email: currentUser,
+        }).toString();
+        const res = await fetch(`/api/cities?${query}`);
+        const cities = await res.json();
         const randomCitiesGet = getRandomItems(cities, numItems);
         setRandomFavoriteCities(randomCitiesGet);
       }
@@ -104,17 +105,6 @@ export default function Home() {
       .filter((result) => result !== undefined)
       .flat();
     return randomCities;
-  }
-
-  if (
-    session &&
-    (randomFavoriteCities.length === 0 || randomCities.length === 0)
-  ) {
-    return null;
-  }
-
-  if (!session && randomCities.length === 0) {
-    return null;
   }
 
   return (
