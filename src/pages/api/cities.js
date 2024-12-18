@@ -25,26 +25,26 @@ export default async function handler(req, res) {
 
   if (req.method === 'GET') {
     const { email, withScore } = req.query;
-    if (email) {
-      const userCities = await findCitiesByUser(email);
-      if (withScore === 'false') {
-        return res.status(200).json(userCities);
-      }
-      if (withScore === 'true') {
-        const userRatings = await findRatingsByUser(email);
-        const citiesWithScores = getCitiesWithScores(userRatings, userCities);
-        return res.status(200).json(citiesWithScores);
-      }
+    if (!email) {
+      throw new Error('Email is required');
     }
+    const userCities = await findCitiesByUser(email);
+    if (withScore) {
+      const userRatings = await findRatingsByUser(email);
+      const citiesWithScores = getCitiesWithScores(userRatings, userCities);
+      return res.status(200).json(citiesWithScores);
+    }
+    return res.status(200).json(userCities);
   }
 
   if (req.method === 'DELETE') {
     const { latitude, longitude, email } = req.body;
-    const response = await deleteCity(latitude, longitude, email);
-    if (typeof response === 'boolean') {
+
+    try {
+      const response = await deleteCity(latitude, longitude, email);
       return res.status(200).json(response);
-    } else {
-      return res.status(404).json(response);
+    } catch (error) {
+      return res.status(404).json({ message: error.message });
     }
   }
 
@@ -88,7 +88,7 @@ export default async function handler(req, res) {
     let response;
 
     if (!(latitude && longitude) || !email) {
-      response = { message: `City's coordinates and Email are required` };
+      throw new Error(`City's coordinates and Email are required`);
     }
 
     const user = await userRepo.findOne({
@@ -104,7 +104,7 @@ export default async function handler(req, res) {
     });
 
     if (!user || !city) {
-      response = { message: `City's coordinates and Email not found` };
+      throw new Error(`City's coordinates and Email not found`);
     } else {
       user.cities = user.cities.filter(
         (city) => city.latitude !== latitude && city.longitude !== longitude

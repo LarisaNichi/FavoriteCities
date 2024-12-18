@@ -12,11 +12,10 @@ export default function Favorites() {
       if (currentUser) {
         const query = new URLSearchParams({
           email: currentUser,
-          withScore: true,
+          withScore: 1,
         }).toString();
         const res = await fetch(`/api/cities?${query}`);
         const citiesAndScores = await res.json();
-        console.log('CITIES AND SCORES FROM FAVORITES', citiesAndScores);
         setCitiesWithScores(citiesAndScores);
       }
     })();
@@ -70,7 +69,6 @@ export default function Favorites() {
       const ratings = citiesWithScores.map(({ id, country, ...restCity }) => ({
         ...restCity,
       }));
-      console.log('RATINGS TO BE SENT', ratings);
 
       const response = await fetch('/api/ratings', {
         method: 'POST',

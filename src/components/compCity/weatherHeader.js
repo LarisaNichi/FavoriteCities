@@ -15,7 +15,6 @@ export default function WeatherHeader({ weatherData, cityData }) {
       if (currentUser) {
         const query = new URLSearchParams({
           email: currentUser,
-          withScore: false,
         }).toString();
         const res = await fetch(`/api/cities?${query}`);
         const cities = await res.json();
