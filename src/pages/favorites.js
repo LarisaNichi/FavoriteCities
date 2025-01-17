@@ -30,7 +30,8 @@ export default function Favorites() {
         },
         body: JSON.stringify({ latitude, longitude, email }),
       });
-      const result = await response.json();
+      await response.json();
+      // console.log('Response DELETE', response);
       if (response.ok) {
         const newCitiesList = citiesWithScores.filter(
           (city) => city.latitude !== latitude && city.longitude !== longitude

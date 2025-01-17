@@ -19,8 +19,8 @@ export default async function handler(req, res) {
     const { cityToSave, email } = req.body;
     const { latitude, longitude } = cityToSave;
 
-    const response = await createCity(email, cityToSave, latitude, longitude);
-    return res.status(200).json(response);
+    await createCity(email, cityToSave, latitude, longitude);
+    return res.status(200).json({ message: 'City created successfully!' });
   }
 
   if (req.method === 'GET') {
@@ -39,17 +39,15 @@ export default async function handler(req, res) {
 
   if (req.method === 'DELETE') {
     const { latitude, longitude, email } = req.body;
-
     try {
-      const response = await deleteCity(latitude, longitude, email);
-      return res.status(200).json(response);
+      await deleteCity(latitude, longitude, email);
+      return res.status(200).json({ message: 'City removed successfully!' });
     } catch (error) {
       return res.status(404).json({ message: error.message });
     }
   }
 
   async function createCity(email, cityToSave, latitude, longitude) {
-    let response;
     const currentUser = await userRepo.findOne({
       where: { email },
       relations: ['cities'],
@@ -67,7 +65,6 @@ export default async function handler(req, res) {
       await userRepo.save(currentUser);
       // citySaved.users = [currentUser];
       console.log('City created');
-      response = true;
     }
     if (cityExists && !cityIsAlreadySavedByCurrentUser) {
       currentUser.cities.push(cityExists);
@@ -75,18 +72,13 @@ export default async function handler(req, res) {
       console.log(
         'City exists in the database and was added for a different user'
       );
-      response = true;
     }
     if (cityExists && cityIsAlreadySavedByCurrentUser) {
       console.log('This city already exists in your favorite list');
-      response = true;
     }
-    return response;
   }
 
   async function deleteCity(latitude, longitude, email) {
-    let response;
-
     if (!(latitude && longitude) || !email) {
       throw new Error(`City's coordinates and Email are required`);
     }
@@ -105,17 +97,14 @@ export default async function handler(req, res) {
 
     if (!user || !city) {
       throw new Error(`City's coordinates and Email not found`);
-    } else {
-      user.cities = user.cities.filter(
-        (city) => city.latitude !== latitude && city.longitude !== longitude
-      );
-      await userRepo.save(user);
-      if (rating) {
-        await ratingRepo.remove(rating);
-      }
-      response = false;
     }
-    return response;
+    user.cities = user.cities.filter(
+      (city) => city.latitude !== latitude && city.longitude !== longitude
+    );
+    await userRepo.save(user);
+    if (rating) {
+      await ratingRepo.remove(rating);
+    }
   }
 }
 

@@ -43,8 +43,10 @@ export default function WeatherHeader({ weatherData, cityData }) {
           email: session.user.email,
         }),
       });
-      const result = await response.json();
-      setCityIsSavedToFavorites(result);
+      await response.json();
+      if (response.ok) {
+        setCityIsSavedToFavorites(true);
+      }
     } catch (error) {
       console.error(error);
     }
@@ -63,8 +65,10 @@ export default function WeatherHeader({ weatherData, cityData }) {
           email: session.user.email,
         }),
       });
-      const result = await response.json();
-      setCityIsSavedToFavorites(result);
+      await response.json();
+      if (response.ok) {
+        setCityIsSavedToFavorites(false);
+      }
     } catch (error) {
       console.error(error);
     }
