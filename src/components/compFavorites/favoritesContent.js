@@ -13,8 +13,7 @@ import {
 import { Rating } from '@/components/ui/rating';
 
 export default function FavoritesContent({
-  favoriteCities,
-  getCityScore,
+  citiesWithScores,
   deleteCityFromFavorites,
   handleRatingOnChange,
   sendRatings,
@@ -56,72 +55,74 @@ export default function FavoritesContent({
         rowGap="2"
         mx="auto"
       >
-        {favoriteCities.map(({ id, name, country, latitude, longitude }) => {
-          const score = getCityScore(latitude, longitude);
-          return (
-            <GridItem key={id}>
-              <Flex
-                gap="6"
-                justifyContent="space-between"
-                alignItems="center"
-                bg="blue.100"
-                py="2"
-                px="5"
-              >
-                <Box textAlign="left">
-                  <Text>
-                    {name}, {country}
-                  </Text>
-                </Box>
-                <Group>
-                  <Button
-                    variant="solid"
-                    colorPalette="blue"
-                    size="sm"
-                    px="2"
-                    onClick={() => {
-                      router.push({
-                        pathname: `/city/${name}`,
-                        query: { country, latitude, longitude },
-                      });
-                    }}
-                  >
-                    View
-                  </Button>
-                  <Button
-                    variant="subtle"
-                    colorPalette="blue"
-                    size="sm"
-                    px="2"
-                    onClick={() =>
-                      deleteCityFromFavorites(latitude, longitude, currentUser)
-                    }
-                  >
-                    Delete
-                  </Button>
-                  {score && (
+        {citiesWithScores.map(
+          ({ id, name, country, latitude, longitude, score }) => {
+            return (
+              <GridItem key={id}>
+                <Flex
+                  gap="6"
+                  justifyContent="space-between"
+                  alignItems="center"
+                  bg="blue.100"
+                  py="2"
+                  px="5"
+                >
+                  <Box textAlign="left">
+                    <Text>
+                      {name}, {country}
+                    </Text>
+                  </Box>
+                  <Group>
+                    <Button
+                      variant="solid"
+                      colorPalette="blue"
+                      size="sm"
+                      px="2"
+                      onClick={() => {
+                        router.push({
+                          pathname: `/city/${name}`,
+                          query: { country, latitude, longitude },
+                        });
+                      }}
+                    >
+                      View
+                    </Button>
+                    <Button
+                      variant="subtle"
+                      colorPalette="blue"
+                      size="sm"
+                      px="2"
+                      onClick={() =>
+                        deleteCityFromFavorites(
+                          latitude,
+                          longitude,
+                          currentUser
+                        )
+                      }
+                    >
+                      Delete
+                    </Button>
                     <Rating
                       value={score}
-                      readOnly
                       size="sm"
                       colorPalette="blue"
-                    />
-                  )}
-                  {score === 0 && (
-                    <Rating
-                      defaultValue={0}
-                      onChange={(e) => {
-                        handleRatingOnChange(e, name, latitude, longitude);
+                      onValueChange={(e) => {
+                        handleRatingOnChange(
+                          e,
+                          name,
+                          country,
+                          latitude,
+                          longitude,
+                          id
+                        );
                       }}
-                      size="sm"
-                      colorPalette="blue"
                     />
-                  )}
-                </Group>
-              </Flex>
-            </GridItem>
-          );
-        })}
+                  </Group>
+                </Flex>
+              </GridItem>
+            );
+          }
+        )}
       </Grid>
       <Center>
         <Button

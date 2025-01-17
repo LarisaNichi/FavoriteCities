@@ -12,11 +12,12 @@ export default function WeatherHeader({ weatherData, cityData }) {
 
   useEffect(() => {
     (async () => {
-      const res = await fetch('/api/cities');
-      const users = await res.json();
-      const userData = users.filter((user) => user.email === currentUser);
-      if (userData.length !== 0) {
-        const cities = userData[0].cities;
+      if (currentUser) {
+        const query = new URLSearchParams({
+          email: currentUser,
+        }).toString();
+        const res = await fetch(`/api/cities?${query}`);
+        const cities = await res.json();
         const isSavedToFavorites = cities.some(
           (city) => city.latitude === latitude && city.longitude === longitude
         );
@@ -42,8 +43,10 @@ export default function WeatherHeader({ weatherData, cityData }) {
           email: session.user.email,
         }),
       });
-      const result = await response.json();
-      setCityIsSavedToFavorites(result);
+      await response.json();
+      if (response.ok) {
+        setCityIsSavedToFavorites(true);
+      }
     } catch (error) {
       console.error(error);
     }
@@ -62,8 +65,10 @@ export default function WeatherHeader({ weatherData, cityData }) {
           email: session.user.email,
         }),
       });
-      const result = await response.json();
-      setCityIsSavedToFavorites(result);
+      await response.json();
+      if (response.ok) {
+        setCityIsSavedToFavorites(false);
+      }
     } catch (error) {
       console.error(error);
     }

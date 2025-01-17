@@ -63,23 +63,20 @@ export default function HomeContent({ randomFavoriteCities, randomCities }) {
           alignItems="center"
         >
           <GridItem colSpan={{ base: '1', sm: '3' }}>
-            {session && (
-              <HomeCitiesContent
-                cities={randomFavoriteCities}
-              ></HomeCitiesContent>
+            {session && randomFavoriteCities.length !== 0 && (
+              <HomeCitiesContent cities={randomFavoriteCities} />
             )}
-            {!session && (
-              <HomeCitiesContent cities={randomCities}></HomeCitiesContent>
+            {!session && randomCities.length !== 0 && (
+              <HomeCitiesContent cities={randomCities} />
             )}
           </GridItem>
           <GridItem colSpan={{ base: '1', sm: '4' }} alignSelf="center">
-            <HomeMainContent
-              location={location}
-              loading={loading}
-            ></HomeMainContent>
+            <HomeMainContent location={location} loading={loading} />
           </GridItem>
           <GridItem colSpan={{ base: '1', sm: '3' }} gap="4">
-            <HomeCitiesContent cities={randomCities}></HomeCitiesContent>
+            {randomCities.length !== 0 && (
+              <HomeCitiesContent cities={randomCities} />
+            )}
           </GridItem>
         </Grid>
       </HomeLayout>
